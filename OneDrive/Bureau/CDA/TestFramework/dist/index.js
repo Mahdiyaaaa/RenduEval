@@ -8,22 +8,33 @@
 
   // src/user/UserList.ts
   var UserList = class {
-    constructor(parent, collection) {
+    constructor(parent, collection, userShow2) {
       this.parent = parent;
       this.collection = collection;
+      this.userShow = userShow2;
       this.collection.on("change", this.render.bind(this));
     }
     render() {
-      this.parent.innerHTML = "<h2>User List</h2>     ";
-      const selectElement = document.createElement("select");
-      selectElement.id = "user-select";
+      this.parent.innerHTML = `
+      <h2>User List</h2>
+      <select id="user-select"></select>`;
+      const selectElement = this.parent.querySelector("#user-select");
       this.collection.models.forEach((user) => {
         const option = document.createElement("option");
         option.value = user.get("id") || "";
         option.textContent = user.get("name") || "Unknown";
         selectElement.appendChild(option);
       });
-      this.parent.appendChild(selectElement);
+      selectElement.addEventListener("change", this.onUserSelect.bind(this));
+    }
+    onUserSelect(event) {
+      const selectElement = event.target;
+      const selectedUserId = selectElement.value;
+      const selectedUser = this.collection.models.find((user) => user.get("id") === selectedUserId);
+      if (selectedUser) {
+        this.userShow.model = selectedUser;
+        this.userShow.render();
+      }
     }
   };
 
@@ -78,30 +89,14 @@
 
   // src/user/UserShow.ts
   var UserShow = class extends View {
-    constructor() {
-      super(...arguments);
-      this.onSaveClick = () => {
-        const name = document.getElementById("nameInput").value;
-        const age = parseInt(document.getElementById("ageInput").value, 10);
-        this.model.set({ name, age });
-        this.model.save();
-      };
-    }
     template() {
       return `
             <div>
-                <div>User name: ${this.model.get("name")}</div>
-                <div>User age: ${this.model.get("age")}</div>
-                <input id="nameInput" value="${this.model.get("name") || ""}" placeholder="Name" />
-                <input id="ageInput" type="number" value="${this.model.get("age") || ""}" placeholder="Age" />
-                <button id="saveButton">Save User</button>
+                <h2>User Show</h2>
+                <div>Nom: ${this.model.get("name")}</div>
+                <div>\xC2ge: ${this.model.get("age")}</div>
             </div>
         `;
-    }
-    eventsMap() {
-      return {
-        "click:#saveButton": this.onSaveClick
-      };
     }
   };
 
@@ -127,7 +122,6 @@
                 <h1>User Form</h1>
                 <label>Nom</label>
                 <input class="nameInput" placeholder="Name" value="${this.model.get("name") || ""}" />
-                <input class="ageInput" type="number" placeholder="Age" value="${this.model.get("age") || ""}" />
                 <button class="set-name">Set Name</button>
                 <button class="set-age">Set Random Age</button>
                 <button class="save-model">Create/Save User</button>
@@ -2782,20 +2776,21 @@
 
   // src/index.ts
   var userCollection = User.buildCollection();
-  var userList = new UserList(
-    document.getElementById("user-list"),
-    userCollection
-  );
-  userList.render();
   var userShow = new UserShow(
     document.getElementById("user-show"),
-    User.build({ id: "1f37", name: "Mahdiya", age: 22 })
+    User.build({ id: "", name: "", age: 0 })
   );
+  var userList = new UserList(
+    document.getElementById("user-list"),
+    userCollection,
+    userShow
+  );
+  userList.render();
+  userCollection.fetch();
   userShow.render();
   var userForm = new UserForm(
     document.getElementById("user-form"),
-    User.build({ id: "1f37", name: "Mahdiya", age: 22 })
+    User.build({ name: "" })
   );
   userForm.render();
-  userCollection.fetch();
 })();

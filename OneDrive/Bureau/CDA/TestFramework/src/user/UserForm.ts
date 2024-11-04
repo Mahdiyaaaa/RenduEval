@@ -27,7 +27,6 @@ export class UserForm extends View<User, UserProps>
                 <h1>User Form</h1>
                 <label>Nom</label>
                 <input class="nameInput" placeholder="Name" value="${this.model.get('name') || ''}" />
-                <input class="ageInput" type="number" placeholder="Age" value="${this.model.get('age') || ''}" />
                 <button class="set-name">Set Name</button>
                 <button class="set-age">Set Random Age</button>
                 <button class="save-model">Create/Save User</button>

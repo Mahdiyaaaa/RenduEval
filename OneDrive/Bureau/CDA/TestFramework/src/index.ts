@@ -6,26 +6,28 @@ import { User } from './user/User';
 
 const userCollection = User.buildCollection();
 
-const userList = new UserList
-(
-  document.getElementById('user-list')!,
-  userCollection
-);
-userList.render();
-
 const userShow = new UserShow
 (
   document.getElementById('user-show')!,
-  User.build({ id: '1f37', name: 'Mahdiya', age: 22 })
+  User.build({ id: '', name: '', age: 0 })
 );
+
+const userList = new UserList
+(
+  document.getElementById('user-list')!,
+  userCollection,
+  userShow
+);
+userList.render();
+userCollection.fetch();
+
 userShow.render();
 
 const userForm = new UserForm
 (
   document.getElementById('user-form')!,
-  User.build({ id: '1f37', name: 'Mahdiya', age: 22 })
+  User.build({ name: ''})
 );
 userForm.render();
 
 
-userCollection.fetch();
